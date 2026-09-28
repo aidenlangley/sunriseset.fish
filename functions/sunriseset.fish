@@ -1,6 +1,6 @@
 function sunriseset --description 'Get sunrise and sunset from api.sunrise-sunset.org'
     set __name (string split '.' (basename (status -f)))[1]
-    set __version '1.0.0'
+    set __version '1.0.1'
     set __description 'Get sunrise and sunset from api.sunrise-sunset.org'
 
     set opts (fish_opt --short h --long help)
