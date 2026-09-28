@@ -3,7 +3,8 @@ function sunriseset --description 'Get sunrise and sunset from api.sunrise-sunse
     set __version '1.0.2'
     set __description 'Get sunrise and sunset from api.sunrise-sunset.org'
 
-    set opts (fish_opt --short h --long help)
+    set opts (fish_opt --short c --long config --required-val)
+    set opts $opts (fish_opt --short h --long help)
     set opts $opts (fish_opt --short t --long latitude --required-val)
     set opts $opts (fish_opt --short g --long longitude --required-val)
     set opts $opts (fish_opt --short v --long version)
@@ -98,18 +99,19 @@ function sunriseset --description 'Get sunrise and sunset from api.sunrise-sunse
     # Check if we have been given -t/--latitude & -g/-longitude
     if not set --query _flag_t || not set --query _flag_g
 
-        # No latitude/longitude - check $XDG_CONFIG_HOME.
-        set config_file "$XDG_CONFIG_HOME/sunriseset/config"
+        # No latitude/longitude - check config.
+        if set --query _flag_c
+            log -l DBG "_flag_c set { _flag_c: $_flag_c }"
+            set config_file $_flag_c
+        else
+            set config_file "$XDG_CONFIG_HOME/sunriseset/config"
+        end
+        log -l DBG "config_file set { config_file: $config_file }"
+
         if not test -e $config_file
-
-            # No dice, check $HOME for a config file.
-            set config_file "$HOME/.sunriseset"
-            if not test -e $config_file
-
-                # No config, no go.
-                _log --level ERR 'Config not found, need -t/--latitude and -g/--longitude'
-                return 1
-            end
+            # No config, no go.
+            _log --level ERR "Config not found ($config_file), need -t/--latitude and -g/--longitude"
+            return 1
         end
 
         set config (cat $config_file)
