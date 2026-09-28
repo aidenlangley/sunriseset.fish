@@ -13,3 +13,10 @@
 @test "sunriseset sunset" (
    sunriseset sunset
 ) = "19:00"
+
+set cache "$XDG_CACHE_HOME/sunriseset"
+rm "$cache"
+
+@test "creates cache" -e (
+  sunriseset
+) "$cache"
