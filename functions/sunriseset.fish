@@ -1,7 +1,7 @@
 function sunriseset --description 'Get sunrise and sunset from api.sunrise-sunset.org'
-    set __name (string split '.' (basename (status -f)))[1]
-    set __version '1.0.3'
-    set __description 'Get sunrise and sunset from api.sunrise-sunset.org'
+    set --global __name (string split '.' (basename (status -f)))[1]
+    set --global __version '1.0.4'
+    set --global __description 'Get sunrise and sunset from api.sunrise-sunset.org'
 
     set opts (fish_opt --short c --long config --required-val)
     set opts $opts (fish_opt --short h --long help)
@@ -10,6 +10,7 @@ function sunriseset --description 'Get sunrise and sunset from api.sunrise-sunse
     set opts $opts (fish_opt --short v --long version)
     argparse $opts -- $argv
 
+    # Prints version.
     if set --query _flag_v
         echo $__version
         return
@@ -19,44 +20,39 @@ function sunriseset --description 'Get sunrise and sunset from api.sunrise-sunse
     if set --query _flag_h
         set TAB '  '
         set FLAG_DELIM ', '
-
         set FIND_MY_GPS_COORDS 'https://findmycoordinates.com/find-coordinates'
         set DEFAULT_CONFIG "$XDG_CONFIG_HOME/sunriseset/config"
 
         set name (set_color --bold green)$__name(set_color --reset)
         set desc (set_color --italic)$__description(set_color --reset)
-        echo (printf '%s %s - %s.' $name $__version $desc)
+        printf '%s %s - %s.\n' $name $__version $desc
 
-        function _usage --inherit-variable __name --argument-names args
-            echo (set_color --bold cyan)$__name(set_color --reset) $args
-        end
-
+        set name (set_color --bold cyan)$__name(set_color --reset)
         function _desc --argument-names desc
             echo (set_color --dim brwhite)$desc(set_color --reset)
         end
-
         function _option --argument-names args
             echo (set_color --bold cyan)$args(set_color --reset)
         end
 
         echo
-        echo (set_color --bold green)'Usage:'(set_color --reset)
-        echo $TAB(_usage '[OPTIONS] [ARGS]')
-        echo $TAB(_usage 'r/rise/sunrise|s/set/sunset')
-        echo $TAB$TAB (_desc "Get the sunrise or sunset for the co-ordinates from config ($DEFAULT_CONFIG).")
-        echo $TAB(_usage '-t/--latitude -3.14 -g/--longitude 3.14')
-        echo $TAB$TAB (_desc 'Get the sunset and sunrise times for the given co-ordinates.')
-        echo $TAB(_usage '-t/--latitude -3.14 -g/--longitude 3.14 r/rise/sunrise')
-        echo $TAB$TAB (_desc 'Get the sunrise only for the given co-ordinates.')
-        echo $TAB(_usage '-t/--latitude -3.14 -g/--longitude 3.14 s/set/sunset')
-        echo $TAB$TAB (_desc 'Get the sunset only for the given co-ordinates.')
+        printf '%s\n' (set_color --bold green)'Usage:'(set_color --reset)
+        printf '  %s %s\n' $name '[OPTIONS] [ARGS]'
+        printf '  %s %s\n' $name 'r/rise/sunrise|s/set/sunset'
+        printf '    %s\n' (_desc "Get the sunrise or sunset for the co-ordinates from config ($DEFAULT_CONFIG).")
+        printf '  %s %s\n' $name '-t/--latitude -3.14 -g/--longitude 3.14'
+        printf '    %s\n' (_desc 'Get the sunset and sunrise times for the given co-ordinates.')
+        printf '  %s %s\n' $name '-t/--latitude -3.14 -g/--longitude 3.14 r/rise/sunrise'
+        printf '    %s\n' (_desc 'Get the sunrise only for the given co-ordinates.')
+        printf '  %s %s\n' $name '-t/--latitude -3.14 -g/--longitude 3.14 s/set/sunset'
+        printf '    %s\n' (_desc 'Get the sunset only for the given co-ordinates.')
 
         echo
-        echo (set_color --bold green)'Options:'(set_color --reset)
-        echo $TAB(_option (string join -- $FLAG_DELIM -t --latitude)' <LATITUDE>')
-        echo $TAB$TAB"Your latitude. Find yours here: $FIND_MY_GPS_COORDS"
-        echo $TAB(_option (string join -- $FLAG_DELIM -g --longitude)' <LONGITUDE>')
-        echo $TAB$TAB"Your longitude. Find yours here: $FIND_MY_GPS_COORDS"
+        printf '%s\n' (set_color --bold green)'Options:'(set_color --reset)
+        printf '  %s\n' (_option (string join -- $FLAG_DELIM -t --latitude)' <LATITUDE>')
+        printf '    %s\n' "Your latitude. Find yours here: $FIND_MY_GPS_COORDS"
+        printf '  %s\n' (_option (string join -- $FLAG_DELIM -g --longitude)' <LONGITUDE>')
+        printf '    %s\n' "Your longitude. Find yours here: $FIND_MY_GPS_COORDS"
 
         return
     end
@@ -152,6 +148,11 @@ function sunriseset --description 'Get sunrise and sunset from api.sunrise-sunse
 
         set req "$BASE_URL?lat=$lat&lng=$lng"
         set resp (curl -s $req)
+
+        if not command -sq jq
+            _log --level ERR "jq package is missing, please install jq. We use \
+      it to parse the JSON returned from api.sunrise-sunset.org."
+        end
 
         set data (echo $resp | jq '.sunrise,.sunset' | string replace --all '"' '')
 
