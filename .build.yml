@@ -31,4 +31,5 @@ tasks:
   - test: |
       fish -c "fishtape $TEST_DIR/*.fish"&
   - gh: |
-      git push gh && git push gh --tags
+      cd sunriseset.fish
+      git push gh HEAD:main && git push gh HEAD:main --tags
