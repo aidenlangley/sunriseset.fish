@@ -1,6 +1,6 @@
 function sunriseset --description 'Get sunrise and sunset from api.sunrise-sunset.org'
     set __name (string split '.' (basename (status -f)))[1]
-    set __version '0.1.0'
+    set __version '1.0.0'
     set __description 'Get sunrise and sunset from api.sunrise-sunset.org'
 
     set opts (fish_opt --short h --long help)
@@ -54,6 +54,41 @@ function sunriseset --description 'Get sunrise and sunset from api.sunrise-sunse
         return
     end
 
+    function _log --description 'Log messages (Levels: ERR, INF, WARN, DEBUG, OK, QUESTION)'
+        if functions -q log
+            log $argv && return
+        end
+
+        set opts (fish_opt --short l --long level --required-val)
+        set opts $opts (fish_opt --short t --long timestamp)
+        argparse $opts -- $argv
+
+        set msg
+        if set --query _flag_t
+            set msg (set_color -d)(printf '[%s]' (date +'%H:%M:%S.%N'))(set_color --reset)
+        end
+
+        set --query _flag_l && set level $_flag_l
+        switch $level
+            case dbg debug DBG DEBUG
+                set msg $msg (set_color -o cyan)DBG(set_color --reset) $argv
+            case inf info INF INFO
+                set msg $msg (set_color --bold --dim white)INF(set_color --reset) $argv
+            case wrn warn WRN WARN
+                set msg $msg (set_color -o yellow)WARN(set_color --reset) $argv
+            case err error ERR ERROR
+                set msg $msg (set_color -o red)ERR(set_color --reset) $argv
+            case ok OK
+                set msg $msg (set_color -o green)OK(set_color --reset) $argv
+            case question QUESTION
+                set msg $msg (set_color -o cyan)'???'(set_color --reset) $argv
+            case '*'
+                set msg $msg $argv
+        end
+
+        echo $msg
+    end
+
     # Check if we have been given -t/--latitude & -g/-longitude
     if not set --query _flag_t || not set --query _flag_g
 
@@ -86,6 +121,13 @@ function sunriseset --description 'Get sunrise and sunset from api.sunrise-sunse
         end
     end
 
+    function _is_number --description 'Check if value is a number'
+        if functions -q is_number
+            is_number $argv && return
+        end
+        string match --quiet --regex '^-?[0-9]+(\.?[0-9]*)?$' -- "$argv"
+    end
+
     set lat $_flag_t
     set lng $_flag_g
 
@@ -97,6 +139,20 @@ function sunriseset --description 'Get sunrise and sunset from api.sunrise-sunse
     if not _is_number $lng
         _log --level ERR "$lng is not a number/float"
         return 1
+    end
+
+    function _fetch --description 'Get sunrise and sunset from API' --argument-names lat lng
+        set BASE_URL 'https://api.sunrise-sunset.org/v2'
+
+        set req "$BASE_URL?lat=$lat&lng=$lng"
+        set resp (curl -s $req)
+
+        set data (echo $resp | jq '.sunrise,.sunset' | string replace --all '"' '')
+
+        set sunrise (string sub --start=12 --end=16 $data[1])
+        set sunset (string sub --start=12 --end=16 $data[2])
+
+        echo $sunrise $sunset
     end
 
     set cache_file "$XDG_CACHE_HOME/sunriseset"
@@ -129,60 +185,4 @@ function sunriseset --description 'Get sunrise and sunset from api.sunrise-sunse
     else
         echo "$sunrise $sunset"
     end
-end
-
-function _fetch --description 'Get sunrise and sunset from API' --argument-names lat lng
-    set BASE_URL 'https://api.sunrise-sunset.org/v2'
-
-    set req "$BASE_URL?lat=$lat&lng=$lng"
-    set resp (curl -s $req)
-
-    set data (echo $resp | jq '.sunrise,.sunset' | string replace --all '"' '')
-
-    set sunrise (string sub --start=12 --end=16 $data[1])
-    set sunset (string sub --start=12 --end=16 $data[2])
-
-    echo $sunrise $sunset
-end
-
-function _log --description 'Log messages (Levels: ERR, INF, WARN, DEBUG, OK, QUESTION)'
-    if functions -q log
-        log $argv && return
-    end
-
-    set opts (fish_opt --short l --long level --required-val)
-    set opts $opts (fish_opt --short t --long timestamp)
-    argparse $opts -- $argv
-
-    set msg
-    if set --query _flag_t
-        set msg (set_color -d)(printf '[%s]' (date +'%H:%M:%S.%N'))(set_color --reset)
-    end
-
-    set --query _flag_l && set level $_flag_l
-    switch $level
-        case dbg debug DBG DEBUG
-            set msg $msg (set_color -o cyan)DBG(set_color --reset) $argv
-        case inf info INF INFO
-            set msg $msg (set_color --bold --dim white)INF(set_color --reset) $argv
-        case wrn warn WRN WARN
-            set msg $msg (set_color -o yellow)WARN(set_color --reset) $argv
-        case err error ERR ERROR
-            set msg $msg (set_color -o red)ERR(set_color --reset) $argv
-        case ok OK
-            set msg $msg (set_color -o green)OK(set_color --reset) $argv
-        case question QUESTION
-            set msg $msg (set_color -o cyan)'???'(set_color --reset) $argv
-        case '*'
-            set msg $msg $argv
-    end
-
-    echo $msg
-end
-
-function _is_number --description 'Check if value is a number'
-    if functions -q is_number
-        is_number $argv && return
-    end
-    string match --quiet --regex '^-?[0-9]+(\.?[0-9]*)?$' -- "$arg"
 end
