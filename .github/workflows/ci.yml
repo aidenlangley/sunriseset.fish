@@ -1,0 +1,25 @@
+name: tests
+on: push
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup
+        run: |
+          sudo apt-add-repository -yn ppa:fish-shell/release-3
+          sudo apt-get update
+          sudo apt-get install -y fish curl jq
+      - name: Install tools
+        run: |
+          fisher=https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish
+          curl $fisher | source
+          fisher install jorgebucaran/fisher
+          fisher install jorgebucaran/fishtape
+          fishtape tests/*.fish
+        shell: fish {0}
+      - name: Run tests
+        run: |
+          fisher install $GITHUB_WORKSPACE aidenlangley/sunriseset.fish
+          fishtape tests/*.fish
+        shell: fish {0}
