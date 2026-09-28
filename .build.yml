@@ -1,5 +1,4 @@
 image: alpine/latest
-shell: true
 packages:
   - fish
   - shadow
