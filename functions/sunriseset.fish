@@ -9,17 +9,8 @@ function sunriseset --description 'Get sunrise and sunset from api.sunrise-sunse
     set opts $opts (fish_opt --short v --long version)
     argparse $opts -- $argv
 
-    function _print_version \
-        --inherit-variable __name \
-        --inherit-variable __version \
-        --inherit-variable __description
-        set name (set_color --bold green)$__name(set_color --reset)
-        set desc (set_color --italic)$__description(set_color --reset)
-        echo (printf '%s %s - %s.' $name $__version $desc)
-    end
-
     if set --query _flag_v
-        _print_version
+        echo $__version
         return
     end
 
@@ -30,6 +21,10 @@ function sunriseset --description 'Get sunrise and sunset from api.sunrise-sunse
 
         set FIND_MY_GPS_COORDS 'https://findmycoordinates.com/find-coordinates'
         set DEFAULT_CONFIG "$XDG_CONFIG_HOME/sunriseset/config"
+
+        set name (set_color --bold green)$__name(set_color --reset)
+        set desc (set_color --italic)$__description(set_color --reset)
+        echo (printf '%s %s - %s.' $name $__version $desc)
 
         function _usage --inherit-variable __name --argument-names args
             echo (set_color --bold cyan)$__name(set_color --reset) $args
@@ -42,8 +37,6 @@ function sunriseset --description 'Get sunrise and sunset from api.sunrise-sunse
         function _option --argument-names args
             echo (set_color --bold cyan)$args(set_color --reset)
         end
-
-        _print_version
 
         echo
         echo (set_color --bold green)'Usage:'(set_color --reset)
