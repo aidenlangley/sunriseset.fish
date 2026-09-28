@@ -34,11 +34,9 @@ function sunriseset --description 'Get sunrise and sunset from api.sunrise-sunse
 
         echo
         echo (set_color --bold green)'Usage:'(set_color --reset)
-        echo $TAB(_usage '[OPTIONS] [ARGS]...')
+        echo $TAB(_usage '[OPTIONS] [ARGS]')
         echo $TAB(_usage 'r/rise/sunrise|s/set/sunset')
         echo $TAB$TAB (_desc "Get the sunrise or sunset for the co-ordinates from config ($DEFAULT_CONFIG).")
-        # echo $TAB(_usage '-t/--latitude -3.14 -g/--longitude 3.14 c/conf/config')
-        # echo $TAB$TAB (_desc "Save latitude and longitude to config ($DEFAULT_CONFIG).")
         echo $TAB(_usage '-t/--latitude -3.14 -g/--longitude 3.14')
         echo $TAB$TAB (_desc 'Get the sunset and sunrise times for the given co-ordinates.')
         echo $TAB(_usage '-t/--latitude -3.14 -g/--longitude 3.14 r/rise/sunrise')
@@ -148,18 +146,13 @@ function _fetch --description 'Get sunrise and sunset from API' --argument-names
 end
 
 function _log --description 'Log messages (Levels: ERR, INF, WARN, DEBUG, OK, QUESTION)'
-    # Nice date format if we want to use it.
-    # printf '[%s]' (date --iso-8601=seconds)
-    # printf '[%s]' (date +'%H:%M:%S.%N')
-    # $argv[2..-1]
+    if functions -q log
+        log $argv && return
+    end
 
-    set opts (fish_opt --short d --long debug)
-    set opts $opts (fish_opt --short l --long level --required-val)
+    set opts (fish_opt --short l --long level --required-val)
     set opts $opts (fish_opt --short t --long timestamp)
-
     argparse $opts -- $argv
-
-    set --query _flag_d && set debug $_flag_d
 
     set msg
     if set --query _flag_t
@@ -188,8 +181,8 @@ function _log --description 'Log messages (Levels: ERR, INF, WARN, DEBUG, OK, QU
 end
 
 function _is_number --description 'Check if value is a number'
-    if not string match --quiet --regex '^-?[0-9]+(\.?[0-9]*)?$' -- "$arg"
-        false
+    if functions -q is_number
+        is_number $argv && return
     end
-    true
+    string match --quiet --regex '^-?[0-9]+(\.?[0-9]*)?$' -- "$arg"
 end
