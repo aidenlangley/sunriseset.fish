@@ -4,8 +4,8 @@ function sunriseset --description 'Get sunrise and sunset from api.sunrise-sunse
     set __description 'Get sunrise and sunset from api.sunrise-sunset.org'
 
     set opts (fish_opt --short h --long help)
-    set opts $opts (fish_opt --short t --long latitude)
-    set opts $opts (fish_opt --short g --long longitude)
+    set opts $opts (fish_opt --short t --long latitude --required-val)
+    set opts $opts (fish_opt --short g --long longitude --required-val)
 
     argparse $opts -- $argv
 
