@@ -1,5 +1,7 @@
 name: tests
 on: push
+env:
+  FISHER_URL: https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -12,11 +14,9 @@ jobs:
           sudo apt-get install -y fish curl jq
       - name: Install tools
         run: |
-          fisher=https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish
-          curl $fisher | source
+          curl -sL $FISHER | source
           fisher install jorgebucaran/fisher
           fisher install jorgebucaran/fishtape
-          fishtape tests/*.fish
         shell: fish {0}
       - name: Run tests
         run: |
