@@ -21,3 +21,5 @@ sunriseset >/dev/null
 @test "creates cache" -n (
   ls $XDG_CACHE_HOME | grep 'sunriseset'
 )
+
+# @test "" () 
