@@ -1,7 +1,7 @@
 # sunriseset.fish
 
 [![builds.sr.ht status](https://builds.sr.ht/~nedia.svg)](https://builds.sr.ht/~nedia?)
-[![GitHub Workflow: tests status](https://github.com/aidenlangley/sunriseset.fish/actions/workflows/ci.yml/badge.svg)](https://github.com/aidenlangley/sunriseset.fish/actions/workflows/ci.yml)
+[![tests](https://github.com/aidenlangley/sunriseset.fish/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/aidenlangley/sunriseset.fish/actions/workflows/ci.yml)
 
 Gets your sunrise and sunset times from `api.sunrise-sunset.org`. You can either
 pass your latitude and longitude to the function, or set it permanently in
