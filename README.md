@@ -1,5 +1,7 @@
 # sunriseset.fish
 
+[![builds.sr.ht status](https://builds.sr.ht/~nedia.svg)](https://builds.sr.ht/~nedia?)
+
 Gets your sunrise and sunset times from `api.sunrise-sunset.org`. You can either
 pass your latitude and longitude to the function, or set it permanently in
 config (`$XDG_CONFIG_HOME/sunriseset/config`).
