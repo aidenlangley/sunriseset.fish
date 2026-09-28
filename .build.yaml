@@ -1,19 +1,33 @@
 image: alpine/latest
+shell: true
+packages:
+  - fish
+  - shadow
+  - jq
+sources:
+  - https://github.com/jorgebucaran/fisher
+  - https://github.com/jorgebucaran/fishtape
 triggers:
   - action: email
     condition: failure
     to: Aiden Langley <aiden@nedia.dev>
-packages:
-  - fish
-  - curl
-sources:
-  - https://github.com/jorgebucaran/fisher
-shell: true
+environment:
+  XDG_CACHE_HOME: .cache
+  XDG_CONFIG_HOME: .config
+  CONFIG_DIR: .config/sunriseset
+  FISHER: fisher/functions/fisher.fish
+  TEST_DIR: sunriseset.fish/tests
 tasks:
-  - prep: |
-      cat /etc/passwd
-  - install_tools: |
-      cd fisher
-      fish -c 'source functions/fisher.fish && fisher install jorgebucaran/fisher jorgebucaran/fishtape'
+  - chsh: sudo chsh $(whoami) -s $(which fish)
+  - tools: |
+      fish -c "source $FISHER && fisher install fisher && fisher install fishtape"&
+  - config: |
+      mkdir -pv $CONFIG_DIR
+      cp -v $TEST_DIR/config $CONFIG_DIR
+  - cache: |
+      mkdir -pv $XDG_CACHE_HOME
+      echo '07:00 19:00' >$XDG_CACHE_HOME/sunriseset
+  - setup: |
+      fish -c 'fisher install sunriseset.fish'&
   - test: |
-      cat /etc/passwd
+      fish -c "fishtape $TEST_DIR/*.fish"&

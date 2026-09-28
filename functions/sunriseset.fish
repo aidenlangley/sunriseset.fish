@@ -1,6 +1,6 @@
 function sunriseset --description 'Get sunrise and sunset from api.sunrise-sunset.org'
     set __name (string split '.' (basename (status -f)))[1]
-    set __version '1.0.2'
+    set __version '1.0.3'
     set __description 'Get sunrise and sunset from api.sunrise-sunset.org'
 
     set opts (fish_opt --short c --long config --required-val)
@@ -101,12 +101,10 @@ function sunriseset --description 'Get sunrise and sunset from api.sunrise-sunse
 
         # No latitude/longitude - check config.
         if set --query _flag_c
-            log -l DBG "_flag_c set { _flag_c: $_flag_c }"
             set config_file $_flag_c
         else
             set config_file "$XDG_CONFIG_HOME/sunriseset/config"
         end
-        log -l DBG "config_file set { config_file: $config_file }"
 
         if not test -e $config_file
             # No config, no go.

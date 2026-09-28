@@ -1,33 +1,15 @@
-set --local BASENAME --regex -- '[^/]+$'
+# @fish-lsp-disable 7001
 
-@echo (fisher --version)
+@echo (sunriseset --version)
 
-@test "fisher install" (
-    fisher install tests/ponyo >/dev/null 
-) "$ponyo" = "pyon pyon"
+@test "sunriseset --help" (
+    sunriseset --help >/dev/null
+) "$status" = 0
 
-@test "fisher list" (
-    fisher list | string match $BASENAME | string join " "
-) = "fisher fishtape ponyo"
+@test "sunriseset sunrise" (
+   sunriseset sunrise
+) = "07:00"
 
-@test "fisher list regex" (
-    fisher list ponyo | string match $BASENAME
-) = ponyo
-
-@test "pyon pyon" (fish --command ponyo | string join " ") = "pyon pyon ponyo"
-
-@test "fisher update" (
-    fisher update tests/ponyo >/dev/null
-) "$ponyo" = "pyon pyon pyon"
-
-@test fish_plugins (
-    string match --regex -- "[^/]+\$" <$__fish_config_dir/fish_plugins | string join " "
-) = "fisher fishtape ponyo"
-
-@test "fisher remove" (
-    fisher remove tests/ponyo >/dev/null
-) "$ponyo" = ""
-
-@test "has state" -n (
-    set --names | string match \*fisher\* | string collect
-)
+@test "sunriseset sunset" (
+   sunriseset sunset
+) = "19:00"
