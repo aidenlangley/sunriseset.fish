@@ -30,3 +30,5 @@ tasks:
       fish -c 'fisher install sunriseset.fish'&
   - test: |
       fish -c "fishtape $TEST_DIR/*.fish"&
+  - gh: |
+      git push gh && git push gh --tags
