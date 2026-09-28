@@ -4,9 +4,10 @@ function sunriseset --description 'Get sunrise and sunset from api.sunrise-sunse
     set --global __description 'Get sunrise and sunset from api.sunrise-sunset.org'
 
     set opts (fish_opt --short c --long config --required-val)
-    set opts $opts (fish_opt --short h --long help)
-    set opts $opts (fish_opt --short t --long latitude --required-val)
     set opts $opts (fish_opt --short g --long longitude --required-val)
+    set opts $opts (fish_opt --short h --long help)
+    set opts $opts (fish_opt --short s --long skipcache)
+    set opts $opts (fish_opt --short t --long latitude --required-val)
     set opts $opts (fish_opt --short v --long version)
     argparse $opts -- $argv
 
@@ -164,7 +165,7 @@ function sunriseset --description 'Get sunrise and sunset from api.sunrise-sunse
 
     set cache_file "$XDG_CACHE_HOME/sunriseset"
 
-    if test -e $cache_file
+    if test -e $cache_file && not set --query _flag_s
         set data (cat $cache_file)
 
         if test (math (date +'%s') - (stat -c '%Y' $cache_file)) -gt 86400
