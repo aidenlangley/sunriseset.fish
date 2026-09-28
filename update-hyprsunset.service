@@ -1,0 +1,16 @@
+[Unit]
+Description=A script to update hyprsunset config with location based sunrise and sunset.
+Documentation=https://git.sr.ht/~nedia/update-hyprsunset
+PartOf=graphical-session.target
+Requires=graphical-session.target
+After=graphical-session.target
+ConditionEnvironment=WAYLAND_DISPLAY
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/update-hyprsunset
+Slice=session.slice
+Restart=on-failure
+
+[Install]
+WantedBy=graphical-session.target
