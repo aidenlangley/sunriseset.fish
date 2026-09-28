@@ -1,36 +1,60 @@
 # @fish-lsp-disable 7001
 
-@echo (sunriseset --version)
-
 @test "sunriseset --help" (
     sunriseset --help >/dev/null
-) "$status" = 0
+) $status = 0
 
-@test "sunriseset sunrise with config" (
+set ver (sunriseset --version)
+
+@test "sunriseset --version" (
+  sunriseset --version
+) = $ver
+
+set sunrise (sunriseset sunrise)
+set sunset (sunriseset sunset)
+
+@test "sunriseset sunrise w/ latitude + longitude from config" (
    sunriseset sunrise
-) = "07:00"
+) = $sunrise
 
-@test "sunriseset sunset with config" (
+@test "sunriseset sunset w/ latitude + longitude from config" (
    sunriseset sunset
-) = "19:00"
+) = $sunset
 
+# Taking a copy of the cache here - when we run sunriseset with -t/--latitude
+# and -g/--longitude, we want to make sure it's not hitting the cache. The
+# previous calls will have created a cache entry, so it will always exist.
+set cache $XDG_CACHE_HOME/sunriseset
+set cached_date (cat $cache)
+
+# Arbitrary latitude and longitude. I like pies.
 set lat -3.1415
 set lng 3.1415
 
-@test "sunriseset sunrise with flags" (
-   sunriseset sunrise --lat $lat --lng $lng
-) = "07:00"
+# Grab the sunrise and sunset to test against.
+set sunrise (sunriseset sunrise -t $lat -g $lng)
+set sunset (sunriseset sunset -t $lat -g $lng)
 
-@test "sunriseset sunset with flags" (
-   sunriseset sunset --lat $lat --lng $lng
-) = "19:00"
+@test "sunriseset sunrise w/ latitude + longitude (implies -s/--skipcache)" (
+   sunriseset sunrise -t $lat -g $lng
+) = $sunrise
 
-set cache "$XDG_CACHE_HOME/sunriseset"
-rm "$cache"
-sunriseset >/dev/null
+@test "sunriseset sunset w/ latitude + longitude (implies -s/--skipcache)" (
+   sunriseset sunset -t $lat -g $lng
+) = $sunset
 
-@test "creates cache" -n (
-  ls $XDG_CACHE_HOME | grep 'sunriseset'
+# Now we check if the previous calls wrote to the cache file. They shouldn't
+# when they have both latitude and longitude. If diff returns 0, they are the
+# same.
+@test "cache was skipped" (
+  echo $cached_date | diff $XDG_CACHE_HOME/sunriseset -
+) $status = 0
+
+# We're going to remove the cache here and test that it writes to cache when
+# it doesn't exist.
+rm $cache
+
+# Call sunriseset and ignore its output. Just grep for cache file in cache dir.
+@test "creates cache if not present" -n (
+  sunriseset &>/dev/null && ls $XDG_CACHE_HOME | grep 'sunriseset'
 )
-
-# @test "" () 
