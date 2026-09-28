@@ -17,6 +17,6 @@
 set cache "$XDG_CACHE_HOME/sunriseset"
 rm "$cache"
 
-@test "creates cache" -e (
-  sunriseset
-) "$cache"
+@test "creates cache" (
+  sunriseset && test -e $cache
+)
