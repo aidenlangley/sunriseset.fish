@@ -2,24 +2,42 @@ name: tests
 on: push
 env:
   FISHER_URL: https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish
+  XDG_CACHE_HOME: .cache
+  XDG_CONFIG_HOME: .config
+  CONFIG_DIR: .config/sunriseset
+  TEST_DIR: sunriseset.fish/tests
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Setup
+      - name: pkgs
         run: |
           sudo apt-add-repository -yn ppa:fish-shell/release-3
           sudo apt-get update
           sudo apt-get install -y fish curl jq
-      - name: Install tools
+
+      - name: tools
         run: |
-          curl -sL $FISHER | source
+          curl -sL $FISHER_URL | source
           fisher install jorgebucaran/fisher
           fisher install jorgebucaran/fishtape
         shell: fish {0}
-      - name: Run tests
+
+      - name: config
         run: |
-          fisher install $GITHUB_WORKSPACE aidenlangley/sunriseset.fish
-          fishtape tests/*.fish
+          mkdir -pv $CONFIG_DIR
+          cp -v $TEST_DIR/config $CONFIG_DIR
+
+      - name: cache
+        run: |
+          mkdir -pv $XDG_CACHE_HOME
+          echo '07:00 19:00' >$XDG_CACHE_HOME/sunriseset
+
+      - name: setup
+        run: fisher install $GITHUB_WORKSPACE aidenlangley/sunriseset.fish
+        shell: fish {0}
+
+      - name: test
+        run: fishtape tests/*.fish
         shell: fish {0}

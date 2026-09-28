@@ -11,10 +11,10 @@ triggers:
     condition: failure
     to: Aiden Langley <aiden@nedia.dev>
 environment:
+  FISHER: fisher/functions/fisher.fish
   XDG_CACHE_HOME: .cache
   XDG_CONFIG_HOME: .config
   CONFIG_DIR: .config/sunriseset
-  FISHER: fisher/functions/fisher.fish
   TEST_DIR: sunriseset.fish/tests
 tasks:
   - chsh: sudo chsh $(whoami) -s $(which fish)
