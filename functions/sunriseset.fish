@@ -93,18 +93,29 @@ function sunriseset --description 'Get sunrise and sunset from api.sunrise-sunse
         echo $msg
     end
 
-    # Check if we have been given -t/--latitude & -g/-longitude
-    if not set --query _flag_t || not set --query _flag_g
+    # When we've got both latitude and longitude, it's safe to assume we don't 
+    # want to hit the cache. It's also safe to assume we won't be using the 
+    # config.
+    if set --query _flag_t && set --query _flag_g
+        # Set -s/--skipcache to true.
+        set _flag_s true
+        # And since we have both latitude and longitude, we won't be looking up
+        # a config.
+    end
 
-        # No latitude/longitude - check config.
+    # Check if we have been given -t/--latitude & -g/-longitude.
+    if not set --query _flag_t || not set --query _flag_g
+        # No latitude or longitude...
         if set --query _flag_c
+            # We've been given a path to a config file.
             set config_file $_flag_c
         else
+            # Look up our default config file.
             set config_file "$XDG_CONFIG_HOME/sunriseset/config"
         end
 
+        # No config, no latitude/longitude, no go.
         if not test -e $config_file
-            # No config, no go.
             _log --level ERR "Config not found ($config_file), need -t/--latitude and -g/--longitude"
             return 1
         end
@@ -176,7 +187,7 @@ function sunriseset --description 'Get sunrise and sunset from api.sunrise-sunse
     else
         # No cache, we need fresh data, and we can cache it.
         set data (_fetch $lat $lng)
-        echo $data >$cache_file
+        set --query _flag_s || echo $data >$cache_file
     end
 
     set data (string split ' ' $data)
