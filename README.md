@@ -4,14 +4,9 @@ Gets your sunrise and sunset times from `api.sunrise-sunset.org`. You can either
 pass your latitude and longitude to the function, or set it permanently in
 config (`$XDG_CONFIG_HOME/sunriseset/config`).
 
+![preview](preview.png)
+
 ## Install
-
-via [oh-my-fish](https://github.com/oh-my-fish/oh-my-fish):
-
-```fish
-omf install sunriseset.fish
-
-```
 
 via [fisher](https://github.com/jorgebucaran/fisher):
 
@@ -32,15 +27,18 @@ Just put latitude first, and longitude second, like so:
 
 ## Usage
 
-```fish
+```sh
+# Get the sunrise or sunset for the co-ordinates from config ($XDG_CONFIG_HOME/sunriseset/config).
 sunriseset r/rise/sunrise|s/set/sunset
-    Get the sunrise or sunset for the co-ordinates from config ($XDG_CONFIG_HOME/sunriseset/config).
+
+# Get the sunset and sunrise times for the given co-ordinates.
 sunriseset -t/--latitude -3.14 -g/--longitude 3.14
-    Get the sunset and sunrise times for the given co-ordinates.
+
+# Get the sunrise only for the given co-ordinates.
 sunriseset -t/--latitude -3.14 -g/--longitude 3.14 r/rise/sunrise
-    Get the sunrise only for the given co-ordinates.
+
+# Get the sunset only for the given co-ordinates.
 sunriseset -t/--latitude -3.14 -g/--longitude 3.14 s/set/sunset
-    Get the sunset only for the given co-ordinates.
 ```
 
 I use this to automatically update my `hyprsunset` config like so:
