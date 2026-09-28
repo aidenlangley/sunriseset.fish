@@ -1,0 +1,19 @@
+image: alpine/latest
+triggers:
+  - action: email
+    condition: failure
+    to: Aiden Langley <aiden@nedia.dev>
+packages:
+  - fish
+  - curl
+sources:
+  - https://github.com/jorgebucaran/fisher
+shell: true
+tasks:
+  - prep: |
+      cat /etc/passwd
+  - install_tools: |
+      cd fisher
+      fish -c 'source functions/fisher.fish && fisher install jorgebucaran/fisher jorgebucaran/fishtape'
+  - test: |
+      cat /etc/passwd
