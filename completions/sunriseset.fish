@@ -1,3 +1,4 @@
+complete -c sunriseset --short c --long config --description 'Use this config file'
 complete -c sunriseset --short g --long longitude --description 'Set longitude'
 complete -c sunriseset --short h --long help --description 'Print help and exit'
 complete -c sunriseset --short t --long latitude --description 'Set latitude'
